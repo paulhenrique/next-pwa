@@ -1,26 +1,24 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 } from "uuid";
 
-export interface Todo {
+export interface Note {
   id: string;
-  title: string;
   description: string;
-  completed: boolean;
 }
 
-let dataBase: Todo[] = [];
+let dataBase: Note[] = [];
 
 const insert = (cTodo: any) => {
   let todo = cTodo;
   if (typeof cTodo === "string") {
     todo = JSON.parse(cTodo);
   }
-  const newTodo = { ...todo, completed: false, id: v4() };
+  const newTodo = { ...todo, id: v4() };
   dataBase = [newTodo, ...dataBase];
   return newTodo;
 };
 
-const update = (cTodo: Todo) => {
+const update = (cTodo: Note) => {
   let todo = cTodo;
   if (typeof cTodo === "string") {
     todo = JSON.parse(cTodo);
@@ -32,7 +30,7 @@ const update = (cTodo: Todo) => {
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Todo | Todo[]>
+  res: NextApiResponse<Note | Note[]>
 ) {
   if (req.method === "POST") {
     // Process a POST request
@@ -45,6 +43,5 @@ export default function handler(
 
   if (req.method === "GET") {
     res.status(200).json(dataBase);
-    console.log("🚀 ~ file: todo.ts:41 ~ dataBase:", dataBase);
   }
 }

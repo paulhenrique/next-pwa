@@ -10,6 +10,7 @@ import NewNoteModal from "@/components/NewNoteModal";
 const Home = () => {
   const {
     getAll: { data: notes },
+    update: { mutate: updateNote },
   } = useNotes();
 
   const [open, setOpen] = useState(false);
@@ -47,7 +48,11 @@ const Home = () => {
             </Typography>
           )}
           {notes?.map((note) => (
-            <NoteBox key={note.id} notes={note.description} />
+            <NoteBox
+              onDelete={() => updateNote(note)}
+              key={note.id}
+              notes={note.description}
+            />
           ))}
         </Box>
         <NewNoteModal handleClose={handleClose} open={open} />

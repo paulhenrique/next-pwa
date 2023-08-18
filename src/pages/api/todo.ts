@@ -4,6 +4,7 @@ import { v4 } from "uuid";
 export interface Note {
   id: string;
   description: string;
+  deleted?: boolean;
 }
 
 let dataBase: Note[] = [];
@@ -38,10 +39,10 @@ export default function handler(
   }
 
   if (req.method === "PUT") {
-    res.status(200).json(update(req.body));
+    res.status(200).json(update({ ...req.body, deleted: true }));
   }
 
   if (req.method === "GET") {
-    res.status(200).json(dataBase);
+    res.status(200).json(dataBase.filter((el) => !el?.deleted));
   }
 }

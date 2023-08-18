@@ -6,6 +6,7 @@ import useNotes from "@/hooks/useNotes";
 import NoteBox from "@/components/NoteBox";
 import { Add } from "@mui/icons-material";
 import NewNoteModal from "@/components/NewNoteModal";
+import AppBar from "@/components/AppBar";
 
 const Home = () => {
   const {
@@ -23,53 +24,57 @@ const Home = () => {
   };
 
   return (
-    <Box
-      sx={{
-        padding: "1rem",
-        height: "100vh",
-        width: "100vw",
-        background: "#f2f1f1",
-      }}
-    >
+    <>
       <CssBaseline />
-      <Container
+      <AppBar />
+      <Box
         sx={{
-          maxWidth: {
-            md: "60%",
-            sx: "80%",
-            xs: "100%",
-          },
+          padding: "1rem",
+          paddingTop: "5rem",
+          height: "100vh",
+          width: "100vw",
+          background: "#f2f1f1",
         }}
       >
-        <Box display="flex" flexDirection="column" gap="1rem">
-          {notes?.length === 0 && (
-            <Typography color="textSecondary">
-              Sem notas encontradas, clique abaixo para criar uma nova nota
-            </Typography>
-          )}
-          {notes?.map((note) => (
-            <NoteBox
-              onDelete={() => updateNote(note)}
-              key={note.id}
-              notes={note.description}
-            />
-          ))}
-        </Box>
-        <NewNoteModal handleClose={handleClose} open={open} />
-        <Fab
+        <Container
           sx={{
-            position: "absolute",
-            bottom: 16,
-            right: 16,
+            maxWidth: {
+              md: "60%",
+              sx: "80%",
+              xs: "100%",
+            },
           }}
-          color="primary"
-          aria-label="add"
-          onClick={handleOpen}
         >
-          <Add />
-        </Fab>
-      </Container>
-    </Box>
+          <Box display="flex" flexDirection="column" gap="1rem">
+            {notes?.length === 0 && (
+              <Typography color="textSecondary">
+                Sem notas encontradas, clique abaixo para criar uma nova nota
+              </Typography>
+            )}
+            {notes?.map((note) => (
+              <NoteBox
+                onDelete={() => updateNote(note)}
+                key={note.id}
+                notes={note.description}
+              />
+            ))}
+          </Box>
+          <NewNoteModal handleClose={handleClose} open={open} />
+          <Fab
+            sx={{
+              position: "absolute",
+              bottom: 16,
+              right: 16,
+            }}
+            color="primary"
+            aria-label="add"
+            onClick={handleOpen}
+          >
+            <Add />
+          </Fab>
+        </Container>
+      </Box>
+    </>
   );
 };
 

@@ -40,7 +40,7 @@ export const createNote = async (note: Partial<Note>): Promise<void> => {
   try {
     await axiosInstance.post("/todo", note);
   } catch {
-    saveInDB([...getFromDB(), note]);
+    saveInDB([note, ...getFromDB()]);
     throw new Error("Offline");
   }
 };
@@ -49,7 +49,7 @@ export const updateNote = async (note: Note): Promise<void> => {
   try {
     await axiosInstance.put("/todo", note);
   } catch {
-    saveInDB([...getFromDB(), note]);
+    saveInDB([note, ...getFromDB()]);
     throw new Error("Offline");
   }
 };

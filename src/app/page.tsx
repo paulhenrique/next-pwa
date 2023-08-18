@@ -1,95 +1,163 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import React, { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { withProviderClient } from "@/components/ProviderClient";
+import {
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Todo } from "@/pages/api/todo";
+import OnlineViewer, { useOnline } from "@/components/OnlineViewer";
+import axios from "axios";
 
-export default function Home() {
+const localStorageKey = "todos";
+
+const getTodos = async (): Promise<Todo[]> => {
+  try {
+    console.log("loading online =========================");
+    const { data: json } = await axios.get("/api/todo");
+    localStorage.setItem(localStorageKey, JSON.stringify(json));
+    return json;
+  } catch {
+    console.log("loading offline =========================");
+    const dataStorage = localStorage.getItem(localStorageKey);
+    if (!dataStorage) return [];
+    return JSON.parse(dataStorage);
+  }
+};
+
+const Home = () => {
+  const { data = [] } = useQuery<Todo[]>(["todos"], getTodos);
+  const [todo, setTodo] = useState<Todo>({} as Todo);
+
+  const { online } = useOnline();
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation(
+    ["todos"],
+    () => {
+      return fetch("/api/todo", {
+        method: "POST",
+        body: JSON.stringify({
+          ...todo,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (!online) throw new Error("Offline");
+          queryClient.refetchQueries(["todos"]);
+          return json;
+        })
+        .catch(() => {
+          const dataStorage = localStorage.getItem(localStorageKey);
+          if (!dataStorage) {
+            localStorage.setItem(localStorageKey, JSON.stringify([todo]));
+            throw new Error("Offline");
+          }
+          const data = JSON.parse(dataStorage);
+          localStorage.setItem(
+            localStorageKey,
+            JSON.stringify([...data, todo])
+          );
+          queryClient.refetchQueries(["todos"]);
+          throw new Error("Offline");
+        });
+    },
+    {}
+  );
+
+  const { mutate: mutateTodo } = useMutation({
+    mutationKey: ["todos"],
+    mutationFn: (todoItem) => {
+      return fetch("/api/todo", {
+        method: "PUT",
+        body: JSON.stringify(todoItem),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (!online) throw new Error("Offline");
+          queryClient.refetchQueries(["todos"]);
+          return json;
+        })
+        .catch(() => {
+          const dataStorage = localStorage.getItem(localStorageKey);
+          if (!dataStorage) {
+            localStorage.setItem(localStorageKey, JSON.stringify([todo]));
+            throw new Error("Offline");
+          }
+
+          const data = JSON.parse(dataStorage);
+          localStorage.setItem(
+            localStorageKey,
+            JSON.stringify([...data, todo])
+          );
+          queryClient.refetchQueries(["todos"]);
+          throw new Error("Offline");
+        });
+    },
+  });
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <Box
+      sx={{
+        padding: "4rem",
+      }}
+    >
+      <CssBaseline />
+      <Container>
+        <OnlineViewer />
+        <Box display="flex" flexDirection="column" gap="1rem">
+          <TextField
+            onChange={({ target: { value } }) => {
+              setTodo((current) => ({
+                ...current,
+                title: value,
+              }));
+            }}
+            value={todo?.title}
+            label="Título"
+          />
+          <TextField
+            onChange={({ target: { value } }) => {
+              setTodo((current) => ({
+                ...current,
+                description: value,
+              }));
+            }}
+            value={todo?.description}
+            label="Descrição"
+          />
+          <Button onClick={() => mutate()}>Criar novo</Button>
+        </Box>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        {!data?.length && <Typography variant="body1">No todos</Typography>}
+        <Box display="flex" flexDirection="column" gap="1rem">
+          {data?.map((todo) => (
+            <Paper sx={{ padding: "1rem" }} key={todo.id}>
+              <Typography variant="body1">{todo.title}</Typography>
+              <Typography variant="body2">{todo.description}</Typography>
+              <Typography variant="body2">
+                {todo.completed ? "Finalizado" : "Não finalizado"}
+              </Typography>
+              <Button
+                onClick={() =>
+                  mutateTodo({ ...todo, completed: !todo.completed } as any)
+                }
+                variant="contained"
+                color="primary"
+              >
+                Completar
+              </Button>
+            </Paper>
+          ))}
+        </Box>
+      </Container>
+    </Box>
+  );
+};
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default withProviderClient(Home);

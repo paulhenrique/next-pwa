@@ -29,14 +29,14 @@ const getFromDB = () => {
  */
 export const getNotes = async (): Promise<Note[]> => {
   try {
-    const { data: json } = await axiosInstance.get("/api/todo");
+    const { data: json } = await axiosInstance.get("/todo");
     return saveInDB(json);
   } catch {
     return getFromDB();
   }
 };
 
-export const createNote = async (note: Note): Promise<void> => {
+export const createNote = async (note: Partial<Note>): Promise<void> => {
   try {
     await axiosInstance.post("/todo", note);
   } catch {

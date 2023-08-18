@@ -17,7 +17,7 @@ const useNotes = () => {
   /**
    * Mutation para criar uma nota
    */
-  const create = useMutation(["notes"], async (element: Note) => {
+  const create = useMutation(["notes"], async (element: Omit<Note, "id">) => {
     try {
       await createNote(element);
     } finally {

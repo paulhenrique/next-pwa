@@ -40,17 +40,24 @@ export const getNotes = async (): Promise<Note[]> => {
   try {
     const { data: json } = await axiosInstance.get("/todo");
     return saveInDB(json);
-  } catch {
-    return getFromDB();
+  } catch (e) {
+    console.error("Erro ao buscar notas", e);
+    return [];
+  } finally {
+    if (!navigator?.onLine) {
+      return getFromDB();
+    }
   }
 };
 
 export const createNote = async (note: Partial<Note>): Promise<void> => {
   try {
+    if (!navigator?.onLine) {
+      saveInDB([note, ...getFromDB()]);
+    }
     await axiosInstance.post("/todo", note);
-  } catch {
-    saveInDB([note, ...getFromDB()]);
-    throw new Error("Offline");
+  } catch (e) {
+    console.error("Erro ao criar nota", e);
   }
 };
 

@@ -21,8 +21,10 @@ const client = new QueryClient({
   },
 });
 
+const localStorage = typeof window !== "undefined" ? window.localStorage : null;
+
 const localStoragePersister = createSyncStoragePersister({
-  storage: window.localStorage,
+  storage: localStorage,
   retry: removeOldestQuery,
 });
 

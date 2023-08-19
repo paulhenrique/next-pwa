@@ -1,3 +1,4 @@
+"use client";
 import { Paper, Typography, Box, Button } from "@mui/material";
 import React from "react";
 
@@ -11,7 +12,10 @@ export interface NoteBoxProps {
  * @param param0
  * @returns
  */
-export const NoteBox: React.FC<NoteBoxProps> = ({ notes, onDelete }) => {
+export const NoteBox: React.FC<NoteBoxProps> = ({
+  notes = null,
+  onDelete = () => null,
+}) => {
   return (
     <Paper
       sx={{

@@ -1,3 +1,4 @@
+"use client";
 import useNotes from "@/hooks/useNotes";
 import {
   Dialog,

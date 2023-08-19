@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { AppBar as MuiAppBar, Toolbar, Typography } from "@mui/material";
 

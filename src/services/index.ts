@@ -1,7 +1,16 @@
+"use client";
 import { Note } from "@/pages/api/todo";
 import { axiosInstance } from "@/services/axiosInstance";
 
 const localStorageKey = "todos";
+
+const localStorage =
+  typeof window !== "undefined"
+    ? window.localStorage
+    : {
+        getItem: () => null,
+        setItem: () => null,
+      };
 
 /**
  * Salva as notas no localStorage

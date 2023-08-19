@@ -1,3 +1,4 @@
+"use client";
 import { Note } from "@/pages/api/todo";
 import { createNote, getNotes, updateNote } from "@/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

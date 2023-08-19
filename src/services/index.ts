@@ -38,15 +38,14 @@ const getFromDB = () => {
  */
 export const getNotes = async (): Promise<Note[]> => {
   try {
-    if (!navigator?.onLine) {
-      throw new Error("Offline administrado pelo app");
-    }
     const { data: json } = await axiosInstance.get("/todo");
-    saveInDB(json);
+    return saveInDB(json);
   } catch (e) {
     console.error("Erro ao buscar notas", e);
-  } finally {
-    return getFromDB();
+    if (!navigator?.onLine) {
+      return getFromDB();
+    }
+    throw new Error("Offline administrado pelo app (outro erro)");
   }
 };
 
@@ -54,11 +53,11 @@ export const createNote = async (note: Partial<Note>): Promise<void> => {
   try {
     if (!navigator?.onLine) {
       saveInDB([note, ...getFromDB()]);
-      throw new Error("Offline administrado pelo app");
     }
     await axiosInstance.post("/todo", note);
   } catch (e) {
     console.error("Erro ao criar nota", e);
+    throw new Error("Offline administrado pelo app");
   }
 };
 

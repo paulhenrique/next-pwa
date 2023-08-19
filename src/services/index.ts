@@ -58,7 +58,7 @@ export const updateNote = async (note: Note): Promise<void> => {
   try {
     await axiosInstance.put("/todo", note);
   } catch {
-    saveInDB([note, ...getFromDB()]);
+    saveInDB(getFromDB().filter((el: Note) => el.id !== note.id));
     throw new Error("Offline");
   }
 };

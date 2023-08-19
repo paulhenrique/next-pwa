@@ -22,7 +22,9 @@ export const NoteBox: React.FC<NoteBoxProps> = ({
         padding: "1rem",
       }}
     >
-      <Typography variant="body1">{notes}</Typography>
+      <Typography component="div" variant="body1">
+        {notes}
+      </Typography>
       <Box
         sx={{
           display: "flex",

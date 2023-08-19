@@ -47,7 +47,7 @@ const Home = () => {
         >
           <Box display="flex" flexDirection="column" gap="1rem">
             {notes?.length === 0 && (
-              <Typography color="textSecondary">
+              <Typography component="div" color="textSecondary">
                 Sem notas encontradas, clique abaixo para criar uma nova nota
               </Typography>
             )}
